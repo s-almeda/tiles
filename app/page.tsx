@@ -1,103 +1,275 @@
-import Image from "next/image";
+'use client'
+
+import { AppProvider, useApp } from './AppContext'
+import World from './World'
+import { Tile } from './tiles'
+import { Pencil } from 'lucide-react'
+
+function GameContent() {
+  const { world, mode, setMode, isLoading, error, updateTile } = useApp()
+
+  // Layer configuration - could move this to context later
+  const layers = {
+    set: { type: 'set' as const, mode: 'on' as const },
+    props: { type: 'props' as const, mode: 'on' as const },
+    characters: { type: 'characters' as const, mode: 'on' as const }
+  }
+
+  const handleTileClick = (x: number, y: number, tile: Tile, layer: string) => {
+    console.log(`Clicked ${layer} layer at (${x}, ${y}):`, tile.name, `- State: ${tile.currentState}`)
+    
+    if (mode === 'display') {
+      // In display mode, only allow switch interactions
+      if (tile.name === 'switch' && layer === 'props') {
+        const newTile = { ...tile }
+        
+        // Toggle switch state
+        if (newTile.currentState === 'default') {
+          newTile.currentState = 'on'
+        } else if (newTile.currentState === 'on') {
+          newTile.currentState = 'off'
+        } else {
+          newTile.currentState = 'default'
+        }
+        
+        updateTile('props', x, y, newTile)
+      }
+    } else {
+      // In edit mode, tiles could be edited (placeholder for now)
+      console.log('Edit mode - tile editing would go here')
+    }
+  }
+
+  const handleTileHover = (x: number, y: number, tile: Tile, layer: string) => {
+    // Could show tooltip or highlight effects here
+  }
+
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '50vh',
+        fontSize: '18px'
+      }}>
+        Loading world...
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '50vh',
+        fontSize: '18px',
+        color: '#f44336'
+      }}>
+        Error: {error}
+      </div>
+    )
+  }
+
+  if (!world) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '50vh',
+        fontSize: '18px'
+      }}>
+        No world loaded
+      </div>
+    )
+  }
+
+  return (
+    <>
+      {/* Separated Views */}
+      <section style={{ marginBottom: '50px' }}>
+        <h2 style={{ 
+          textAlign: 'center', 
+          marginBottom: '20px',
+          color: '#000',
+          fontSize: '20px',
+          fontWeight: 'bold'
+        }}>
+          Individual Layer Views
+        </h2>
+        <World
+          world={world}
+          viewMode="separated"
+          layers={layers}
+          onTileClick={handleTileClick}
+          onTileHover={handleTileHover}
+        />
+      </section>
+
+      {/* Layered View with Controls */}
+      <section>
+        <h2 style={{ 
+          textAlign: 'center', 
+          marginBottom: '20px',
+          color: '#000',
+          fontSize: '20px',
+          fontWeight: 'bold'
+        }}>
+          Layered World View
+        </h2>
+        
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'flex-start',
+          gap: '20px'
+        }}>
+          {/* Layered World */}
+          <div style={{ position: 'relative' }}>
+            <World
+              world={world}
+              viewMode="layered"
+              layers={layers}
+              onTileClick={handleTileClick}
+              onTileHover={handleTileHover}
+            />
+            
+            {/* Mode indicator overlay */}
+            {mode === 'edit' && (
+              <div style={{
+                position: 'absolute',
+                top: '-5px',
+                left: '-5px',
+                right: '-5px',
+                bottom: '-5px',
+                border: '3px solid #FF9800',
+                borderRadius: '8px',
+                pointerEvents: 'none',
+                boxShadow: '0 0 10px rgba(255, 152, 0, 0.5)'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  top: '-25px',
+                  left: '0',
+                  background: '#FF9800',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
+                }}>
+                  EDIT MODE
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Control Section */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            alignItems: 'center'
+          }}>
+            {/* Edit Button */}
+            {mode === 'display' && (
+              <button
+                onClick={() => setMode('edit')}
+                style={{
+                  background: '#fff',
+                  border: '2px solid #ddd',
+                  borderRadius: '50%',
+                  color: '#000',
+                  width: '48px',
+                  height: '48px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+                title="Edit Mode"
+              >
+                <Pencil size={20} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Done button for edit mode */}
+        {mode === 'edit' && (
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <button
+              onClick={() => setMode('display')}
+              style={{
+                background: '#4CAF50',
+                border: 'none',
+                borderRadius: '6px',
+                color: 'white',
+                padding: '12px 24px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }}
+            >
+              Done
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* Instructions */}
+      <div style={{
+        marginTop: '30px',
+        padding: '20px',
+        backgroundColor: '#fff',
+        border: '2px solid #333',
+        borderRadius: '8px',
+        maxWidth: '600px',
+        margin: '30px auto 0',
+        color: '#000'
+      }}>
+        <h3 style={{ color: '#000', marginBottom: '15px' }}>Instructions:</h3>
+        <ul style={{ color: '#000', lineHeight: '1.6' }}>
+          <li>Click on switches (in props layer) to toggle their state</li>
+          <li>Top section shows each layer separately</li>
+          <li>Bottom section shows all layers stacked together</li>
+          <li>Click the pencil icon to enter edit mode</li>
+          <li>In edit mode, the world has an orange border</li>
+          <li>Click "Done" to exit edit mode</li>
+          <li>Hover over tiles to see their names in tooltips</li>
+        </ul>
+      </div>
+    </>
+  )
+}
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <AppProvider>
+      <main style={{ 
+        padding: '20px', 
+        fontFamily: 'system-ui, sans-serif',
+        backgroundColor: '#f0f0f0',
+        minHeight: '100vh',
+        color: '#000'
+      }}>
+        <h1 style={{ 
+          textAlign: 'center', 
+          marginBottom: '30px',
+          color: '#000',
+          fontSize: '28px',
+          fontWeight: 'bold'
+        }}>
+          Tile World Demo
+        </h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+        <GameContent />
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    </AppProvider>
+  )
 }

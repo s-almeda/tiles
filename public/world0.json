@@ -1,0 +1,126 @@
+{
+  "dimensions": {
+    "width": 5,
+    "height": 5
+  },
+  "setTileMap": {
+    "type": "set",
+    "rows": [
+      [
+        { "name": "grass", "glyph": ",,," },
+        { "name": "grass", "glyph": ",,," },
+        { "name": "water", "glyph": "~~~" },
+        { "name": "water", "glyph": "~~~" },
+        { "name": "stone", "glyph": "###" }
+      ],
+      [
+        { "name": "grass", "glyph": ",,," },
+        { "name": "stone", "glyph": "###" },
+        { "name": "wall", "glyph": "|||" },
+        { "name": "water", "glyph": "~~~" },
+        { "name": "stone", "glyph": "###" }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ]
+    ]
+  },
+  "propsTileMap": {
+    "type": "props",
+    "rows": [
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "switch", "glyph": "[O]", "states": ["default", "on", "off"], "currentState": "default" },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "switch", "glyph": "[O]", "states": ["default", "on", "off"], "currentState": "on" },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ]
+    ]
+  },
+  "charactersTileMap": {
+    "type": "characters",
+    "rows": [
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "player", "glyph": "@" },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ],
+      [
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " },
+        { "name": "empty", "glyph": " " }
+      ]
+    ]
+  }
+}
