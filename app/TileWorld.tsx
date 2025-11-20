@@ -1,17 +1,18 @@
-// app/World.tsx
-import { World as WorldType, TileMap, Tile as TileType } from './tiles'
-import Tile from './Tile'
+// app/TileWorld.tsx
+import TileMap, { LayerConfig, TileType, LayerType, TileMapData, Dimensions } from './TileMap'
 
-type LayerMode = 'on' | 'off' | 'disabled';
-type LayerType = 'set' | 'props' | 'characters';
-
-interface LayerConfig {
-  type: LayerType;
-  mode: LayerMode;
+// TileWorld - Contains several layers of TileMaps that overlay each other
+interface TileWorldType {
+  dimensions: Dimensions;
+  setMap: TileMapData;      // Background layer (terrain, etc.)
+  propsMap: TileMapData;    // Props layer (objects, switches, etc.)
+  charactersMap: TileMapData; // Characters layer (players, NPCs, etc.)
 }
 
-interface WorldProps {
-  world: WorldType;
+type LayerMode = 'on' | 'off' | 'disabled';
+
+interface TileWorldProps {
+  world: TileWorldType;
   onTileClick?: (x: number, y: number, tile: TileType, layer: LayerType) => void;
   onTileHover?: (x: number, y: number, tile: TileType, layer: LayerType) => void;
   viewMode?: 'layered' | 'separated';
@@ -20,73 +21,17 @@ interface WorldProps {
     props: LayerConfig;
     characters: LayerConfig;
   };
+  tileSize?: number; // Size in pixels, default 160
 }
 
-interface TileMapProps {
-  tileMap: TileMap;
-  layerConfig: LayerConfig;
-  onTileClick?: (x: number, y: number, tile: TileType) => void;
-  onTileHover?: (x: number, y: number, tile: TileType) => void;
-  zIndex?: number;
-  title?: string;
-}
-
-function TileMapRenderer({ tileMap, layerConfig, onTileClick, onTileHover, zIndex = 0, title }: TileMapProps) {
-  // Don't render if layer is off or disabled
-  if (layerConfig.mode === 'off' || layerConfig.mode === 'disabled') {
-    return null;
-  }
-
-  return (
-    <div className="tile-map-container">
-      {title && (
-        <h3 style={{ 
-          margin: '0 0 10px 0', 
-          fontSize: '14px', 
-          textAlign: 'center',
-          textTransform: 'capitalize'
-        }}>
-          {title}
-        </h3>
-      )}
-      <div
-        className="tile-map"
-        style={{
-          position: title ? 'relative' : 'absolute',
-          top: title ? 'auto' : 0,
-          left: title ? 'auto' : 0,
-          zIndex,
-          display: 'grid',
-          gridTemplateColumns: `repeat(${tileMap.dimensions.width}, 32px)`,
-          gridTemplateRows: `repeat(${tileMap.dimensions.height}, 32px)`,
-          gap: '0px',
-          border: title ? '1px solid #666' : 'none',
-        }}
-      >
-        {tileMap.rows.map((row, y) =>
-          row.map((tile, x) => (
-            <Tile
-              key={`${x}-${y}`}
-              tile={tile}
-              x={x}
-              y={y}
-              onClick={onTileClick}
-              onHover={onTileHover}
-            />
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default function World({ 
+export default function TileWorld({ 
   world, 
   onTileClick, 
   onTileHover,
   viewMode = 'layered',
-  layers
-}: WorldProps) {
+  layers,
+  tileSize = 160
+}: TileWorldProps) {
   const handleTileClick = (layer: LayerType) => (x: number, y: number, tile: TileType) => {
     if (onTileClick) onTileClick(x, y, tile, layer);
   };
@@ -103,7 +48,7 @@ export default function World({
 
   if (viewMode === 'separated') {
     return (
-      <div className="world-separated">
+      <div className="tileworld-separated">
         <div 
           style={{
             display: 'flex',
@@ -113,28 +58,31 @@ export default function World({
           }}
         >
           {/* Render each layer separately */}
-          <TileMapRenderer
-            tileMap={world.setTileMap}
+          <TileMap
+            tileMap={world.setMap}
             layerConfig={layers.set}
             onTileClick={handleTileClick('set')}
             onTileHover={handleTileHover('set')}
             title="Set"
+            tileSize={tileSize}
           />
 
-          <TileMapRenderer
-            tileMap={world.propsTileMap}
+          <TileMap
+            tileMap={world.propsMap}
             layerConfig={layers.props}
             onTileClick={handleTileClick('props')}
             onTileHover={handleTileHover('props')}
             title="Props"
+            tileSize={tileSize}
           />
 
-          <TileMapRenderer
-            tileMap={world.charactersTileMap}
+          <TileMap
+            tileMap={world.charactersMap}
             layerConfig={layers.characters}
             onTileClick={handleTileClick('characters')}
             onTileHover={handleTileHover('characters')}
             title="Characters"
+            tileSize={tileSize}
           />
         </div>
       </div>
@@ -143,50 +91,55 @@ export default function World({
 
   // Layered mode
   return (
-    <div className="world-layered">
+    <div className="tileworld-layered">
       <div 
-        className="world-container"
+        className="tileworld-container"
         style={{
           position: 'relative',
-          width: `${world.dimensions.width * 32}px`,
-          height: `${world.dimensions.height * 32}px`,
+          width: `${world.dimensions.width * tileSize}px`,
+          height: `${world.dimensions.height * tileSize}px`,
           border: '2px solid #333',
           margin: '20px auto'
         }}
       >
         {/* Set layer (background) */}
-        <TileMapRenderer
-          tileMap={world.setTileMap}
+        <TileMap
+          tileMap={world.setMap}
           layerConfig={layers.set}
           onTileClick={handleTileClick('set')}
           onTileHover={handleTileHover('set')}
           zIndex={1}
+          tileSize={tileSize}
         />
 
         {/* Props layer (middle) */}
-        <TileMapRenderer
-          tileMap={world.propsTileMap}
+        <TileMap
+          tileMap={world.propsMap}
           layerConfig={layers.props}
           onTileClick={handleTileClick('props')}
           onTileHover={handleTileHover('props')}
           zIndex={2}
+          tileSize={tileSize}
         />
 
         {/* Characters layer (top) */}
-        <TileMapRenderer
-          tileMap={world.charactersTileMap}
+        <TileMap
+          tileMap={world.charactersMap}
           layerConfig={layers.characters}
           onTileClick={handleTileClick('characters')}
           onTileHover={handleTileHover('characters')}
           zIndex={3}
+          tileSize={tileSize}
         />
       </div>
 
       {/* Debug info */}
-      <div style={{ textAlign: 'center', fontFamily: 'monospace', fontSize: '12px' }}>
+      <div className="text-center text-sm font-nintendo-ds">
         <p>Dimensions: {world.dimensions.width} x {world.dimensions.height}</p>
         <p>Active Layers: {getVisibleLayers().map(l => l.name).join(', ')}</p>
       </div>
     </div>
   );
 }
+
+export type { TileWorldType, TileWorldProps };

@@ -1,5 +1,14 @@
 // app/Tile.tsx
-import { Tile as TileType } from './tiles'
+// a single tile
+
+// Core Tile type - individual tile with visual and state data
+export interface TileType {
+  name: string;
+  image?: string; // Optional, defaults to none
+  glyph: string; // Visual representation like ",,," for grass
+  states: string[]; // Available states, defaults to ["default"]
+  currentState: string; // Current state, defaults to "default"
+}
 
 interface TileProps {
   tile: TileType;
@@ -7,9 +16,10 @@ interface TileProps {
   y?: number;
   onClick?: (x: number, y: number, tile: TileType) => void;
   onHover?: (x: number, y: number, tile: TileType) => void;
+  tileSize?: number; // Size in pixels, default 160
 }
 
-export default function Tile({ tile, x = 0, y = 0, onClick, onHover }: TileProps) {
+export default function Tile({ tile, x = 0, y = 0, onClick, onHover, tileSize = 160 }: TileProps) {
   const handleClick = () => {
     if (onClick) onClick(x, y, tile);
   };
@@ -18,6 +28,9 @@ export default function Tile({ tile, x = 0, y = 0, onClick, onHover }: TileProps
     if (onHover) onHover(x, y, tile);
   };
 
+  const borderWidth = 2;
+  const innerSize = tileSize - (borderWidth * 2);
+
   return (
     <div
       className="tile"
@@ -25,9 +38,9 @@ export default function Tile({ tile, x = 0, y = 0, onClick, onHover }: TileProps
       onMouseEnter={handleMouseEnter}
       title={`${tile.name} (${tile.currentState})`}
       style={{
-        width: '32px',
-        height: '32px',
-        border: '2px solid #333',
+        width: `${tileSize}px`,
+        height: `${tileSize}px`,
+        border: `${borderWidth}px solid #333`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

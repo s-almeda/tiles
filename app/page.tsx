@@ -1,11 +1,19 @@
 'use client'
 
 import { AppProvider, useApp } from './AppContext'
-import World from './World'
-import { Tile } from './tiles'
+import TileWorld from './TileWorld'
 import { Pencil } from 'lucide-react'
+import { TileType } from './TileMap'
+import NanobananaGenerator from './components/NanobananaGenerator';
+import ApiDebug from './components/ApiDebug';
+import Sprite from './components/Sprite';
 
-function GameContent() {
+
+
+// Use TileType from TileMap as Tile
+type Tile = TileType;
+
+function PageContent() {
   const { world, mode, setMode, isLoading, error, updateTile } = useApp()
 
   // Layer configuration - could move this to context later
@@ -46,13 +54,7 @@ function GameContent() {
 
   if (isLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '50vh',
-        fontSize: '18px'
-      }}>
+      <div className="flex justify-center items-center min-h-[50vh] text-xl font-nintendo">
         Loading world...
       </div>
     )
@@ -60,14 +62,7 @@ function GameContent() {
 
   if (error) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '50vh',
-        fontSize: '18px',
-        color: '#f44336'
-      }}>
+      <div className="flex justify-center items-center min-h-[50vh] text-xl text-red-600 font-nintendo">
         Error: {error}
       </div>
     )
@@ -75,13 +70,7 @@ function GameContent() {
 
   if (!world) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '50vh',
-        fontSize: '18px'
-      }}>
+      <div className="flex justify-center items-center min-h-[50vh] text-xl font-nintendo">
         No world loaded
       </div>
     )
@@ -89,37 +78,41 @@ function GameContent() {
 
   return (
     <>
+      <ApiDebug />
+      <NanobananaGenerator />
+      
+      {/* Sprite Demo */}
+      <section style={{ marginBottom: '30px', padding: '20px', background: 'white', borderRadius: '8px' }}>
+        <h2 style={{ marginBottom: '20px', fontSize: '20px', fontWeight: 'bold' }}>Interactive Sprite - Click and Hold!</h2>
+        <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-end' }}>
+          <div>
+            <div style={{ marginBottom: '10px', fontSize: '14px' }}>Click and hold the sprite</div>
+            <Sprite 
+              name="idle" 
+              frames={[2]} 
+              height={160} 
+              fps={12}
+              onMouseDownAnimation={{ name: 'pickup', frames: [0, 1, 1, 2, 3] }}
+              onMouseUpAnimation={{ name: 'putdown', frames: [0, 1, 1, 2, 3] }}
+            />
+          </div>
+        </div>
+      </section>
+      
       {/* Separated Views */}
       <section style={{ marginBottom: '50px' }}>
-        <h2 style={{ 
-          textAlign: 'center', 
-          marginBottom: '20px',
-          color: '#000',
-          fontSize: '20px',
-          fontWeight: 'bold'
-        }}>
-          Individual Layer Views
-        </h2>
-        <World
+        <TileWorld
           world={world}
           viewMode="separated"
           layers={layers}
           onTileClick={handleTileClick}
           onTileHover={handleTileHover}
+          tileSize={32}
         />
       </section>
 
       {/* Layered View with Controls */}
       <section>
-        <h2 style={{ 
-          textAlign: 'center', 
-          marginBottom: '20px',
-          color: '#000',
-          fontSize: '20px',
-          fontWeight: 'bold'
-        }}>
-          Layered World View
-        </h2>
         
         <div style={{ 
           display: 'flex', 
@@ -129,12 +122,13 @@ function GameContent() {
         }}>
           {/* Layered World */}
           <div style={{ position: 'relative' }}>
-            <World
+            <TileWorld
               world={world}
               viewMode="layered"
               layers={layers}
               onTileClick={handleTileClick}
               onTileHover={handleTileHover}
+              tileSize={128}
             />
             
             {/* Mode indicator overlay */}
@@ -221,29 +215,6 @@ function GameContent() {
           </div>
         )}
       </section>
-
-      {/* Instructions */}
-      <div style={{
-        marginTop: '30px',
-        padding: '20px',
-        backgroundColor: '#fff',
-        border: '2px solid #333',
-        borderRadius: '8px',
-        maxWidth: '600px',
-        margin: '30px auto 0',
-        color: '#000'
-      }}>
-        <h3 style={{ color: '#000', marginBottom: '15px' }}>Instructions:</h3>
-        <ul style={{ color: '#000', lineHeight: '1.6' }}>
-          <li>Click on switches (in props layer) to toggle their state</li>
-          <li>Top section shows each layer separately</li>
-          <li>Bottom section shows all layers stacked together</li>
-          <li>Click the pencil icon to enter edit mode</li>
-          <li>In edit mode, the world has an orange border</li>
-          <li>Click "Done" to exit edit mode</li>
-          <li>Hover over tiles to see their names in tooltips</li>
-        </ul>
-      </div>
     </>
   )
 }
@@ -251,24 +222,9 @@ function GameContent() {
 export default function Home() {
   return (
     <AppProvider>
-      <main style={{ 
-        padding: '20px', 
-        fontFamily: 'system-ui, sans-serif',
-        backgroundColor: '#f0f0f0',
-        minHeight: '100vh',
-        color: '#000'
-      }}>
-        <h1 style={{ 
-          textAlign: 'center', 
-          marginBottom: '30px',
-          color: '#000',
-          fontSize: '28px',
-          fontWeight: 'bold'
-        }}>
-          Tile World Demo
-        </h1>
+      <main className="p-5 font-nintendo bg-gray-100 min-h-screen text-black">
 
-        <GameContent />
+        <PageContent />
       </main>
     </AppProvider>
   )

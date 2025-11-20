@@ -1,7 +1,18 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { World, Tile } from './tiles'
+import { TileType, TileMapData, Dimensions } from './TileMap'
+
+// TileWorld - Contains several layers of TileMaps that overlay each other
+interface World {
+  dimensions: Dimensions;
+  setMap: TileMapData;      // Background layer (terrain, etc.)
+  propsMap: TileMapData;    // Props layer (objects, switches, etc.)
+  charactersMap: TileMapData; // Characters layer (players, NPCs, etc.)
+}
+
+// Use TileType from TileMap as Tile
+type Tile = TileType;
 
 type AppMode = 'display' | 'edit'
 
@@ -48,23 +59,23 @@ export function AppProvider({ children }: AppProviderProps) {
       // Validate and normalize the world data
       const loadedWorld: World = {
         dimensions: worldData.dimensions,
-        setTileMap: {
+        setMap: {
           dimensions: worldData.dimensions,
-          rows: worldData.setTileMap.rows.map((row: any[]) => 
+          rows: (worldData.setTileMap || worldData.setMap).rows.map((row: any[]) => 
             row.map((tile: any) => normalizeTime(tile))
           ),
           type: 'set'
         },
-        propsTileMap: {
+        propsMap: {
           dimensions: worldData.dimensions,
-          rows: worldData.propsTileMap.rows.map((row: any[]) => 
+          rows: (worldData.propsTileMap || worldData.propsMap).rows.map((row: any[]) => 
             row.map((tile: any) => normalizeTime(tile))
           ),
           type: 'props'
         },
-        charactersTileMap: {
+        charactersMap: {
           dimensions: worldData.dimensions,
-          rows: worldData.charactersTileMap.rows.map((row: any[]) => 
+          rows: (worldData.charactersTileMap || worldData.charactersMap).rows.map((row: any[]) => 
             row.map((tile: any) => normalizeTime(tile))
           ),
           type: 'characters'
@@ -97,9 +108,9 @@ export function AppProvider({ children }: AppProviderProps) {
     if (!world) return
     
     const newWorld = { ...world }
-    const targetMap = layer === 'set' ? newWorld.setTileMap : 
-                     layer === 'props' ? newWorld.propsTileMap : 
-                     newWorld.charactersTileMap
+    const targetMap = layer === 'set' ? newWorld.setMap : 
+                     layer === 'props' ? newWorld.propsMap : 
+                     newWorld.charactersMap
     
     // Bounds checking
     if (x < 0 || x >= targetMap.dimensions.width || 
@@ -109,9 +120,9 @@ export function AppProvider({ children }: AppProviderProps) {
     }
     
     // Create new rows array with updated tile
-    targetMap.rows = targetMap.rows.map((row, rowIndex) => 
+    targetMap.rows = targetMap.rows.map((row: Tile[], rowIndex: number) => 
       rowIndex === y 
-        ? row.map((currentTile, colIndex) => colIndex === x ? { ...tile } : currentTile)
+        ? row.map((currentTile: Tile, colIndex: number) => colIndex === x ? { ...tile } : currentTile)
         : row
     )
     

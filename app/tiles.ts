@@ -1,13 +1,20 @@
 //tiles.ts
 //Tile types and util functions
 
+/*
+OVERVIEW:
+- A TileMap is a LAYER of tiles as a 2D array (e.g., background, props, characters)  
+- A World contains several layers of TileMaps that overlay each other
+- Each Tile has a glyph, states, and visual properties
+*/
+
 // Basic dimension interface for consistent sizing
 export interface Dimensions {
   width: number;
   height: number;
 }
 
-// Core Tile type
+// Core Tile type - individual tile with visual and state data
 export interface Tile {
   name: string;
   image?: string; // Optional, defaults to none
@@ -16,23 +23,22 @@ export interface Tile {
   currentState: string; // Current state, defaults to "default"
 }
 
-// TileMap type options
-// there are 3 kinds of tile maps in a world, the set, the props, and the characters
-export type TileMapType = "set" | "props" | "characters";
+// Layer type options - there are 3 kinds of layers in a world
+export type LayerType = "set" | "props" | "characters";
 
-// TileMap - a 2D grid of tiles
+// TileMap - A LAYER of tiles as a 2D array (this is what gets rendered as one layer)
 export interface TileMap {
   dimensions: Dimensions;
   rows: Tile[][]; // Array of rows, each row is an array of tiles
-  type: TileMapType;
+  type: LayerType;
 }
 
-// World - contains three aligned TileMaps
+// World - Contains several layers of TileMaps that overlay each other
 export interface World {
   dimensions: Dimensions;
-  setTileMap: TileMap;
-  propsTileMap: TileMap;
-  charactersTileMap: TileMap;
+  setMap: TileMap;      // Background layer (terrain, etc.)
+  propsMap: TileMap;    // Props layer (objects, switches, etc.)
+  charactersMap: TileMap; // Characters layer (players, NPCs, etc.)
 }
 
 // Utility functions for creating tiles and maps
@@ -64,7 +70,7 @@ export const createTile = (
 
 export const createEmptyTileMap = (
   dimensions: Dimensions,
-  type: TileMapType,
+  type: LayerType,
   defaultTile?: Tile
 ): TileMap => {
   const emptyTile = defaultTile || createTile("empty", " ");
@@ -89,9 +95,9 @@ export const createEmptyTileMap = (
 export const createWorld = (dimensions: Dimensions): World => {
   return {
     dimensions,
-    setTileMap: createEmptyTileMap(dimensions, "set"),
-    propsTileMap: createEmptyTileMap(dimensions, "props"),
-    charactersTileMap: createEmptyTileMap(dimensions, "characters"),
+    setMap: createEmptyTileMap(dimensions, "set"),
+    propsMap: createEmptyTileMap(dimensions, "props"),
+    charactersMap: createEmptyTileMap(dimensions, "characters"),
   };
 };
 
